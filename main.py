@@ -3,7 +3,7 @@ import sqlite3 as sql
 
 app = FastAPI()
 
-@app.get("/les_films")
+@app.get("/films")
 def les_films():
     connexion = sql.connect("films.db")
     films = connexion.execute("SELECT * FROM films").fetchall()
@@ -18,4 +18,12 @@ def les_films():
             'annee': film[2],
             'note': film[3]
         })
-    print(liste)
+    return liste
+
+@app.get('/films/{id}')
+def recup_film(id: int):
+    connexion = sql.connect("films.db")
+    film = connexion.execute('SELECT * FROM films WHERE id = ?', (id,)).fetchall()
+
+    if film is None:
+        return {'message': 'film non trouvé'}
