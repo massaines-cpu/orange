@@ -1,9 +1,30 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 import sqlite3 as sql
+import pandas as pd
+from starlette.responses import FileResponse
 
 app = FastAPI()
+@app.get("/films/upload")
+def upload_file(fichier: UploadFile):
+    chemin = fichier.filename
+    with open(chemin, 'wb') as f:
+        f.write(fichier.file.read())
 
-@app.get("/films")
+    data = pd.read_csv(chemin)
+    print(data)
+
+    connexion = sql.connect('films.db')
+    for ligne in data.itertuples():
+        print('ligne:', ligne)
+        connexion.execute('INSERT INTO films (titre, annee, note) VALUES (?, ?, ?)',
+                          (ligne.titre, ligne.annee, ligne.note))
+    connexion.commit()
+    connexion.close()
+
+    return {'message': 'ok import', 'nb': len(data)}
+
+
+@app.get("/films"))
 def les_films():
     connexion = sql.connect("films.db")
     films = connexion.execute("SELECT * FROM films").fetchall()
