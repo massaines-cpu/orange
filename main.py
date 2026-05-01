@@ -56,3 +56,11 @@ def modif_film(id:int, titre:str, annee:int, note:float):
     connexion.commit()
     connexion.close()
     return {'message': 'ok maj'}
+
+@app.delete('/films/{id}')
+def delete_film(id:int):
+    connexion = sql.connect("films.db")
+    cursor = connexion.execute('DELETE FROM films WHERE id = ?', (id,))
+    connexion.commit()
+    connexion.close()
+    return {'message': 'ok delete'}
